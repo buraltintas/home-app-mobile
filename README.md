@@ -17,6 +17,7 @@ This repository currently contains the working mobile frontend prototype, typed 
 - A guided visit-review creation flow
 - Foundations for favorites, profile, and language selection
 - Google and passwordless email OTP authentication sheets
+- Confirmed account deletion with secure token cleanup and anonymous-state reset
 - Turkish, English, German, and Russian interface dictionaries
 - Custom bottom navigation that respects iOS and Android safe areas
 - Contextual location and photo permission requests
@@ -95,6 +96,8 @@ Native app → Boşa Gezme! API
 The native app calls the backend directly through `src/api/client.ts` because it cannot depend on the web BFF deployment. Keep all direct networking inside this typed transport; screens and presentation components must not issue ad hoc backend requests.
 
 Email authentication uses passwordless OTP. Google authentication expects a Google ID token issued for the backend audience. Production platform credentials and redirects must be configured before release.
+
+The App Store review identity uses the same email request and verification screens as every other user; never add a reviewer-only button, prefill, label, or client-side code. `ACCOUNT_UNAVAILABLE` clears SecureStore session data. Account deletion permanently purges private/profile/content data and returns the app to anonymous mode; a later verified login may reactivate the same account ID only as a blank profile.
 
 ## Fixtures and prototype behavior
 

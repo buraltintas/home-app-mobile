@@ -43,6 +43,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, locale: 
 
 export async function saveSession(pair: TokenPair) { await Promise.all([SecureStore.setItemAsync(ACCESS_KEY,pair.access_token),SecureStore.setItemAsync(REFRESH_KEY,pair.refresh_token)]); }
 export async function clearSession() { await Promise.all([SecureStore.deleteItemAsync(ACCESS_KEY),SecureStore.deleteItemAsync(REFRESH_KEY)]); }
+export async function hasSession() { return Boolean(await SecureStore.getItemAsync(ACCESS_KEY)); }
 export const mobileApi = {
   feed: (locale: Locale, location?:{latitude:number;longitude:number}, cursor?:string) => {
     const params=new URLSearchParams({limit:'20'}); if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}if(cursor)params.set('cursor',cursor);
@@ -64,4 +65,5 @@ export const mobileApi = {
   requestCode: (email:string, locale:Locale) => apiFetch<{status:string}>('/v1/auth/email/request-code',{method:'POST',body:JSON.stringify({email})},locale),
   verifyCode: (email:string,code:string,locale:Locale) => apiFetch<TokenPair>('/v1/auth/email/verify-code',{method:'POST',body:JSON.stringify({email,code})},locale),
   favorite: (id:string,locale:Locale,saved:boolean) => apiFetch<void>(`/v1/stores/${id}/favorite`,{method:saved?'DELETE':'POST'},locale,true),
+  deleteAccount: async (locale:Locale) => {await apiFetch<void>('/v1/me',{method:'DELETE'},locale,true);await clearSession();},
 };
