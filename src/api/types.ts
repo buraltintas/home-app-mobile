@@ -7,12 +7,12 @@ export type GoogleStats = { provider: 'google'; place_id: string; rating: number
 export type Post = {
   id: string; user_id: string; store_id: string; text: string; content_language?: Locale; rating: number;
   visit_verified: true; distance_meters: number; created_at: string; username: string; display_name: string;
-  avatar_url: string; store_name: string; store_city: string; store_district: string; media: MediaAsset[];
+  avatar_url: string; store_name: string; store_city: string; store_district: string; media: MediaAsset[]; store_distance_meters?: number;
   like_count: number; comment_count: number; viewer_has_liked: boolean; viewer_follows_author: boolean;
   viewer_has_favorited_store: boolean;
 };
 export type SearchIntent = {
-  query_language: Locale; normalized_query: string; location_text: string; categories: string[];
+  scope: 'home_living' | 'out_of_scope' | 'unclear'; query_language: Locale; normalized_query: string; store_name: string; location_text: string; categories: string[];
   product_terms: string[]; style_terms: string[]; price_intent: '' | 'budget' | 'midrange' | 'premium';
   attributes: string[]; sort_preference: '' | 'relevance' | 'distance' | 'rating' | 'popularity'; semantic_terms: string[];
 };
@@ -21,7 +21,12 @@ export type SearchResult = {
   city?: string; district?: string; latitude: number; longitude: number; distance_meters?: number;
   categories: string[]; platform?: PlatformStats & { store_id: string }; google?: GoogleStats;
 };
-export type SearchResponse = { search_id: string; visitor_session_id?: string; intent: SearchIntent; results: SearchResult[]; fallback_state?: string };
+export type SearchGuidance = { code: 'HOME_LIVING_ONLY'; reason: 'out_of_scope' | 'unclear'; message: string; examples: [string, string] };
+export type SearchResponse = { search_id: string; visitor_session_id?: string; intent: SearchIntent; results: SearchResult[]; guidance?: SearchGuidance; fallback_state?: string };
+export type LocationResult = { provider: 'google'; place_id: string; name: string; address: string; latitude: number; longitude: number; types: string[]; attributions: string[] };
+export type DiscoveryLocation = { source: 'device' | 'manual'; label: string; address: string; place_id?: string; latitude: number; longitude: number; accuracy_meters?: number; updated_at: string };
+export type VisitVerification = { id: string; store_id: string; distance_meters: number; verified_at: string; expires_at: string };
+export type PrivateProfile = { id: string; email: string; preferred_locale: Locale; discovery_location: DiscoveryLocation | null; [key: string]: unknown };
 export type Store = {
   id: string; name: string; slug: string; brand_name?: string; address: string; city: string; district: string;
   latitude: number; longitude: number; distance_meters?: number; categories: string[]; category_labels: string[];
@@ -31,4 +36,3 @@ export type Store = {
 export type StoreDetail = { store: Store; recent_posts: Post[] };
 export type TokenPair = { access_token: string; refresh_token: string; token_type: 'Bearer'; access_expires_at: string; refresh_expires_at: string; user_id: string };
 export type ApiError = { error: { code: string; message: string }; request_id: string };
-

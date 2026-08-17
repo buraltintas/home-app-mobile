@@ -1,13 +1,13 @@
-# Home App mobile contribution rules
+# Boşa Gezme! mobile contribution rules
 
-Read the exact Expo SDK documentation for the version in `package.json` before using or changing Expo APIs. Before changing screens, tokens, navigation, content, localization, or accessibility, read the shared `$home-app-design` authority from the Home App API repository.
+Read the exact Expo SDK documentation for the version in `package.json` before using or changing Expo APIs. Before changing screens, tokens, navigation, content, localization, or accessibility, read the shared `$home-app-design` authority from the Boşa Gezme! API repository.
 
 ## Product invariants
 
-- Treat Home App as a consumer social product for discovering physical home/living stores.
+- Treat Boşa Gezme! as a consumer social product for discovering physical home/living stores.
 - Keep photography, real visits, store identity, and authored reviews more prominent than UI chrome.
 - Never invent backend DTO fields or unsupported store capability.
-- Keep Home App community metrics and Google-derived data visibly separate.
+- Keep Boşa Gezme! community metrics and Google-derived data visibly separate.
 - Browsing remains anonymous; protected actions open contextual auth and preserve intent.
 
 ## Mobile implementation invariants

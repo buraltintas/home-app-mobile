@@ -1,13 +1,14 @@
 import * as SecureStore from 'expo-secure-store';
-import type { Locale, SearchResponse, StoreDetail, TokenPair } from './types';
+import type { Locale, LocationResult, Post, PrivateProfile, SearchResponse, StoreDetail, TokenPair, VisitVerification } from './types';
 
 const API_ORIGIN = process.env.EXPO_PUBLIC_API_ORIGIN ?? 'http://localhost:8080';
 // Temporary backend contract: this static mobile client credential is extractable.
 // Keep it isolated here so attestation or a gateway exchange can replace it.
 const MOBILE_CLIENT_KEY = process.env.EXPO_PUBLIC_MOBILE_BFF_SECRET ?? '';
-const ACCESS_KEY = 'homeapp.access';
-const REFRESH_KEY = 'homeapp.refresh';
-const VISITOR_KEY = 'homeapp.visitor';
+const ACCESS_KEY = 'bosagezme.access';
+const REFRESH_KEY = 'bosagezme.refresh';
+const VISITOR_KEY = 'bosagezme.visitor';
+const VISIT_PROOF_PREFIX = 'bosagezme.visit-proof.';
 let refreshPromise: Promise<string | null> | null = null;
 
 async function headers(locale: Locale, authenticated = false) {
@@ -43,11 +44,24 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, locale: 
 export async function saveSession(pair: TokenPair) { await Promise.all([SecureStore.setItemAsync(ACCESS_KEY,pair.access_token),SecureStore.setItemAsync(REFRESH_KEY,pair.refresh_token)]); }
 export async function clearSession() { await Promise.all([SecureStore.deleteItemAsync(ACCESS_KEY),SecureStore.deleteItemAsync(REFRESH_KEY)]); }
 export const mobileApi = {
-  feed: (locale: Locale) => apiFetch<{items: unknown[]; next_cursor:string}>('/v1/feed',{},locale),
+  feed: (locale: Locale, location?:{latitude:number;longitude:number}, cursor?:string) => {
+    const params=new URLSearchParams({limit:'20'}); if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}if(cursor)params.set('cursor',cursor);
+    return apiFetch<{items:Post[];next_cursor:string}>(`/v1/feed?${params}`,{},locale);
+  },
   search: (query:string, locale:Locale, location?:{latitude:number;longitude:number}) => apiFetch<SearchResponse>('/v1/search',{method:'POST',body:JSON.stringify({query,...location})},locale),
+  searchLocations: (query:string,locale:Locale) => apiFetch<{items:LocationResult[]}>(`/v1/locations/search?q=${encodeURIComponent(query)}&limit=5`,{},locale),
+  saveManualLocation: (placeId:string,locale:Locale) => apiFetch<PrivateProfile>('/v1/me/discovery-location',{method:'PUT',body:JSON.stringify({source:'manual',place_id:placeId})},locale,true),
+  saveDeviceLocation: (location:{latitude:number;longitude:number;accuracy_meters:number},locale:Locale) => apiFetch<PrivateProfile>('/v1/me/discovery-location',{method:'PUT',body:JSON.stringify({source:'device',...location})},locale,true),
+  clearDiscoveryLocation: (locale:Locale) => apiFetch<void>('/v1/me/discovery-location',{method:'DELETE'},locale,true),
+  verifyVisit: async (storeId:string,location:{latitude:number;longitude:number;accuracy_meters:number},locale:Locale) => {
+    const proof=await apiFetch<VisitVerification>(`/v1/stores/${storeId}/visit-verifications`,{method:'POST',body:JSON.stringify(location)},locale,true);
+    await SecureStore.setItemAsync(`${VISIT_PROOF_PREFIX}${storeId}`,JSON.stringify(proof)); return proof;
+  },
+  visitProof: async (storeId:string) => {const value=await SecureStore.getItemAsync(`${VISIT_PROOF_PREFIX}${storeId}`);return value?JSON.parse(value) as VisitVerification:null;},
+  clearVisitProof: (storeId:string) => SecureStore.deleteItemAsync(`${VISIT_PROOF_PREFIX}${storeId}`),
+  createReview: (payload:{store_id:string;text:string;rating:number;media_ids?:string[];content_language?:Locale;origin_search_id?:string;origin_search_result_id?:string} & ({latitude:number;longitude:number;accuracy_meters:number;visit_verification_id?:never}|{visit_verification_id:string;latitude?:never;longitude?:never;accuracy_meters?:never}),locale:Locale) => apiFetch<Post>('/v1/posts',{method:'POST',body:JSON.stringify(payload)},locale,true),
   store: (id:string, locale:Locale) => apiFetch<StoreDetail>(`/v1/stores/${id}`,{},locale),
   requestCode: (email:string, locale:Locale) => apiFetch<{status:string}>('/v1/auth/email/request-code',{method:'POST',body:JSON.stringify({email})},locale),
   verifyCode: (email:string,code:string,locale:Locale) => apiFetch<TokenPair>('/v1/auth/email/verify-code',{method:'POST',body:JSON.stringify({email,code})},locale),
   favorite: (id:string,locale:Locale,saved:boolean) => apiFetch<void>(`/v1/stores/${id}/favorite`,{method:saved?'DELETE':'POST'},locale,true),
 };
-

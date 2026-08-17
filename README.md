@@ -1,14 +1,18 @@
-# Home App Mobile
+# Boşa Gezme! Mobile
 
-The iOS and Android application for Home App. It is an anonymous-first Expo and React Native experience focused on discovering physical home and living stores through real visit photography, ratings, and community stories.
+The iOS and Android application for Boşa Gezme!. It is an anonymous-first Expo and React Native experience focused on discovering physical home and living stores through real visit photography, ratings, and community stories.
 
-This repository currently contains the working mobile frontend prototype, typed API transport, and Home App’s native design system.
+Canonical production domain: [https://bosagezme.com](https://bosagezme.com). The app uses the supplied logo without redrawing or recoloring and registers `bosagezme://` plus verified `https://bosagezme.com` deep-link targets.
+
+This repository currently contains the working mobile frontend prototype, typed API transport, and Boşa Gezme!’s native design system.
 
 ## Current experience
 
 - A photography- and real-visit-first home feed
 - Natural-language queries, recent searches, categories, and nearby discovery
-- Results that keep Home App community data separate from Google data
+- Backend-authored guidance for unrelated or unclear searches and store-name intent
+- Explicit current/manual location choice with debounced geographic suggestions
+- Results that keep Boşa Gezme! community data separate from Google data
 - Store detail, gallery, community experiences, and primary actions
 - A guided visit-review creation flow
 - Foundations for favorites, profile, and language selection
@@ -19,7 +23,7 @@ This repository currently contains the working mobile frontend prototype, typed 
 
 ## Mobile design and motion
 
-The bottom navigation is not a stock tab bar. It is purpose-built for Home App:
+The bottom navigation is not a stock tab bar. It is purpose-built for Boşa Gezme!:
 
 - Label-free Home, Search, Create, Favorites, and Profile destinations with screen-reader labels
 - A consistent Lucide outline icon family with restrained destination colors
@@ -48,7 +52,7 @@ Requirements:
 
 - Node.js 20 or a current LTS release
 - Xcode Simulator or Android Emulator
-- A running Home App API instance
+- A running Boşa Gezme! API instance
 
 ```bash
 cp .env.example .env
@@ -69,7 +73,7 @@ On a physical device, `localhost` refers to the device itself. Set `EXPO_PUBLIC_
 
 | Variable | Description |
 | --- | --- |
-| `EXPO_PUBLIC_API_ORIGIN` | The Home App API origin |
+| `EXPO_PUBLIC_API_ORIGIN` | The Boşa Gezme! API origin |
 | `EXPO_PUBLIC_MOBILE_BFF_SECRET` | The development client credential required by the current backend |
 
 Any value compiled into a mobile bundle can be extracted. `EXPO_PUBLIC_MOBILE_BFF_SECRET` is not user authentication and must not be treated as a production security boundary.
@@ -78,12 +82,14 @@ Any value compiled into a mobile bundle can be extracted. `EXPO_PUBLIC_MOBILE_BF
 
 The typed transport is isolated under `src/api`. Access and rotating refresh tokens are stored with Expo SecureStore. Anonymous visitor identity remains separate from authenticated state.
 
+The transport models location-aware feed pagination, private device/manual discovery-location persistence, and single-use visit-verification proofs. `store_distance_meters` describes viewer-to-store feed ordering; `distance_meters` remains visit-verification distance. Proof IDs are stored securely and a review sends either fresh device coordinates or one unconsumed proof, never both.
+
 ### Native transport exception
 
 Mobile is the intentional exception to the web BFF rule:
 
 ```text
-Native app → Home App API
+Native app → Boşa Gezme! API
 ```
 
 The native app calls the backend directly through `src/api/client.ts` because it cannot depend on the web BFF deployment. Keep all direct networking inside this typed transport; screens and presentation components must not issue ad hoc backend requests.
@@ -100,6 +106,8 @@ Some screens still use prototype behavior. A local like or favorite state does n
 
 - Location permission is not requested at launch.
 - It is requested only after explaining its value in nearby discovery or visit-verification contexts.
+- Nearby discovery always offers current location, a single-field manual place search, and a non-blocking “Not now” path.
+- Manual discovery candidates are never accepted as visit evidence; review verification always uses a fresh foreground OS fix and horizontal accuracy.
 - Photo permission is requested only when the user adds media to a review.
 
 ## Project structure

@@ -1,30 +1,39 @@
 {
   "expo": {
-    "name": "Home App",
-    "slug": "home-app",
+    "name": "Boşa Gezme!",
+    "slug": "bosagezme",
+    "scheme": "bosagezme",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bosagezme.app",
+      "associatedDomains": ["applinks:bosagezme.com"]
     },
     "android": {
+      "package": "com.bosagezme.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#FFF9EC",
+        "foregroundImage": "./assets/android-icon-foreground.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [{
+        "action": "VIEW",
+        "autoVerify": true,
+        "data": [{"scheme": "https", "host": "bosagezme.com", "pathPrefix": "/"}],
+        "category": ["BROWSABLE", "DEFAULT"]
+      }]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      ["expo-splash-screen", {"image": "./assets/splash-icon.png", "imageWidth": 220, "resizeMode": "contain", "backgroundColor": "#FFF9EC"}],
       "expo-secure-store",
-      ["expo-location", {"locationWhenInUsePermission": "Home App uses your location only for nearby discovery and to verify a store visit."}],
-      ["expo-image-picker", {"photosPermission": "Home App uses selected photos in the store reviews you choose to publish."}]
+      ["expo-location", {"locationWhenInUsePermission": "Boşa Gezme! uses your location only for nearby discovery and to verify a store visit."}],
+      ["expo-image-picker", {"photosPermission": "Boşa Gezme! uses selected photos in the store reviews you choose to publish."}]
     ]
   }
 }
