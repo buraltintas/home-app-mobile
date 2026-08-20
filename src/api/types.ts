@@ -3,7 +3,7 @@ export type SearchSource = 'internal' | 'google' | 'google+platform';
 
 export type MediaAsset = { id: string; url: string; mime_type: 'image/jpeg' | 'image/png' | 'image/webp'; width: number; height: number };
 export type PlatformStats = { average_rating: number; rating_count?: number; review_count: number; favorite_count: number; post_count: number };
-export type GoogleStats = { provider: 'google'; place_id: string; rating: number; rating_count: number };
+export type GoogleStats = { provider: 'google'; place_id: string; rating: number; rating_count: number; photo_name?: string; photo_attributions?: string[];};
 export type Post = {
   id: string; user_id: string; store_id: string; text: string; content_language?: Locale; rating: number;
   visit_verified: true; distance_meters: number; created_at: string; username: string; display_name: string;
