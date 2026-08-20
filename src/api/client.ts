@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import type { Locale, LocationResult, Post, PrivateProfile, SearchResponse, StoreDetail, TokenPair, VisitVerification } from './types';
+import type { Locale, Store, LocationResult, Post, PrivateProfile, SearchResponse, StoreDetail, TokenPair, VisitVerification } from './types';
 
 const API_ORIGIN = process.env.EXPO_PUBLIC_API_ORIGIN ?? 'http://localhost:8080';
 // Temporary backend contract: this static mobile client credential is extractable.
@@ -75,6 +75,15 @@ export const mobileApi = {
     if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}
     const query=params.toString();
     return apiFetch<StoreDetail>(`/v1/stores/${id}${query?`?${query}`:''}`,{},locale);
+  },
+  favorites: (locale:Locale) => apiFetch<{items:Store[]}>('/v1/me/favorites?limit=50',{},locale),
+  // Finding the store you are standing in. Name search answers "the place I can see the
+  // sign of"; nearby answers "the place I am inside", which is the common case when
+  // somebody opens this to write a review.
+  storeSearch: (query:string, locale:Locale) => apiFetch<{items:Store[]}>(`/v1/stores/search?q=${encodeURIComponent(query)}&limit=15`,{},locale),
+  storesNearby: (location:{latitude:number;longitude:number}, locale:Locale) => {
+    const params=new URLSearchParams({latitude:String(location.latitude),longitude:String(location.longitude),radius:'2000',limit:'15'});
+    return apiFetch<{items:Store[]}>(`/v1/stores/nearby?${params}`,{},locale);
   },
   // Which result was opened, so the search that produced it can be measured. Without this
   // the conversion funnel counts every mobile search as one that led nowhere.
