@@ -47,6 +47,12 @@ export async function saveSession(pair: TokenPair) { await Promise.all([SecureSt
 export async function clearSession() { await Promise.all([SecureStore.deleteItemAsync(ACCESS_KEY),SecureStore.deleteItemAsync(REFRESH_KEY)]); }
 export async function hasSession() { return Boolean(await SecureStore.getItemAsync(ACCESS_KEY)); }
 export function mobileMediaSource(path:string) { return {uri:new URL(path,API_ORIGIN).toString(),headers:{'X-BFF-Secret':MOBILE_CLIENT_KEY}}; }
+// Provider photographs are streamed through the API and never cached by us, because keeping
+// the bytes would breach the provider terms. The client key travels as a header because the
+// endpoint is behind the same client check as everything else.
+export function mobilePlacePhotoSource(name:string,width=520) {
+  return {uri:`${API_ORIGIN}/v1/places/photo?name=${encodeURIComponent(name)}&w=${width}`,headers:{'X-BFF-Secret':MOBILE_CLIENT_KEY}};
+}
 export const mobileApi = {
   feed: (locale: Locale, location?:{latitude:number;longitude:number}, cursor?:string) => {
     const params=new URLSearchParams({limit:'20'}); if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}if(cursor)params.set('cursor',cursor);
@@ -64,7 +70,16 @@ export const mobileApi = {
   visitProof: async (storeId:string) => {const value=await SecureStore.getItemAsync(`${VISIT_PROOF_PREFIX}${storeId}`);return value?JSON.parse(value) as VisitVerification:null;},
   clearVisitProof: (storeId:string) => SecureStore.deleteItemAsync(`${VISIT_PROOF_PREFIX}${storeId}`),
   createReview: (payload:{store_id:string;text:string;rating:number;media_ids?:string[];content_language?:Locale;origin_search_id?:string;origin_search_result_id?:string} & ({latitude:number;longitude:number;accuracy_meters:number;visit_verification_id?:never}|{visit_verification_id:string;latitude?:never;longitude?:never;accuracy_meters?:never}),locale:Locale) => apiFetch<Post>('/v1/posts',{method:'POST',body:JSON.stringify(payload)},locale,true),
-  store: (id:string, locale:Locale) => apiFetch<StoreDetail>(`/v1/stores/${id}`,{},locale),
+  store: (id:string, locale:Locale, location?:{latitude:number;longitude:number}) => {
+    const params=new URLSearchParams();
+    if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}
+    const query=params.toString();
+    return apiFetch<StoreDetail>(`/v1/stores/${id}${query?`?${query}`:''}`,{},locale);
+  },
+  // Which result was opened, so the search that produced it can be measured. Without this
+  // the conversion funnel counts every mobile search as one that led nowhere.
+  recordInteraction: (searchId:string, impressionId:string, kind:string, locale:Locale) =>
+    apiFetch<void>(`/v1/searches/${searchId}/interactions`,{method:'POST',body:JSON.stringify({search_result_impression_id:impressionId,interaction_type:kind})},locale),
   requestCode: (email:string, locale:Locale) => apiFetch<{status:string}>('/v1/auth/email/request-code',{method:'POST',body:JSON.stringify({email})},locale),
   verifyCode: (email:string,code:string,locale:Locale) => apiFetch<TokenPair>('/v1/auth/email/verify-code',{method:'POST',body:JSON.stringify({email,code})},locale),
   favorite: (id:string,locale:Locale,saved:boolean) => apiFetch<void>(`/v1/stores/${id}/favorite`,{method:saved?'DELETE':'POST'},locale,true),

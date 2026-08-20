@@ -20,6 +20,13 @@ export type SearchResult = {
   id?: string; search_result_impression_id: string; source: SearchSource; name: string; address: string;
   city?: string; district?: string; latitude: number; longitude: number; distance_meters?: number;
   categories: string[]; platform?: PlatformStats & { store_id: string }; google?: GoogleStats;
+  // Paid placement. The client must label it: promotion that cannot be told apart from an
+  // organic result is what consumer rules prohibit, and /about and /terms already promise
+  // it is marked wherever it appears.
+  premium?: boolean;
+  // The photograph already held for this store, used when the live provider response has
+  // none -- which is every store that reaches the list from our own catalogue.
+  photo?: { name: string; attributions?: string[] };
 };
 export type SearchGuidance = { code: 'HOME_LIVING_ONLY'; reason: 'out_of_scope' | 'unclear'; message: string; examples: [string, string] };
 export type SearchResponse = { search_id: string; visitor_session_id?: string; intent: SearchIntent; results: SearchResult[]; guidance?: SearchGuidance; fallback_state?: string };
@@ -31,6 +38,7 @@ export type Store = {
   id: string; name: string; slug: string; brand_name?: string; address: string; city: string; district: string;
   latitude: number; longitude: number; distance_meters?: number; categories: string[]; category_labels: string[];
   localized_description?: string; platform: PlatformStats; viewer_has_favorited: boolean; viewer_has_reviewed: boolean;
+  is_premium?: boolean;
   external_sources?: { provider: 'google'; external_id: string; attribution: Record<string, unknown>; refreshed_at?: string }[];
 };
 export type StoreDetail = { store: Store; recent_posts: Post[] };
