@@ -76,6 +76,11 @@ export const mobileApi = {
     const query=params.toString();
     return apiFetch<StoreDetail>(`/v1/stores/${id}${query?`?${query}`:''}`,{},locale);
   },
+  // A private message to us about the product. No account required, for the same reason
+  // browsing does not need one: somebody who cannot use the app is exactly who needs to be
+  // able to say so.
+  sendFeedback: (input:{kind:string;message:string;contact_email?:string}, locale:Locale) =>
+    apiFetch<void>('/v1/feedback',{method:'POST',body:JSON.stringify(input)},locale),
   me: (locale:Locale) => apiFetch<PrivateProfile>('/v1/me',{},locale),
   updateMe: (patch:Record<string,unknown>, locale:Locale) => apiFetch<PrivateProfile>('/v1/me',{method:'PATCH',body:JSON.stringify(patch)},locale),
   searches: (locale:Locale) => apiFetch<{items:SearchHistoryEntry[]}>('/v1/me/searches?limit=20',{},locale),

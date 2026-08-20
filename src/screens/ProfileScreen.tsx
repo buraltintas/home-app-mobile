@@ -4,6 +4,7 @@ import { clearSession, mobileApi } from '../api/client';
 import type { Locale, PrivateProfile, SearchHistoryEntry } from '../api/types';
 import { Icon } from '../components/Icon';
 import { PrimaryButton } from '../components/Primitives';
+import { FeedbackScreen } from './FeedbackScreen';
 import { localeNames, useI18n } from '../i18n';
 import { colors, fonts, radius, spacing } from '../theme/tokens';
 
@@ -19,6 +20,7 @@ export function ProfileScreen({signedIn,onAuth,onDeleted,onStore}:{
   const [history,setHistory]=useState<SearchHistoryEntry[]>([]);
   const [loading,setLoading]=useState(true);
   const [historyOpen,setHistoryOpen]=useState(false);
+  const [feedbackOpen,setFeedbackOpen]=useState(false);
 
   const load=useCallback(async()=>{
     setLoading(true);
@@ -54,6 +56,11 @@ export function ProfileScreen({signedIn,onAuth,onDeleted,onStore}:{
     {head}
     <Text style={styles.explainer}>{t('profileBody')}</Text>
     <PrimaryButton label={t('signInTitle')} onPress={onAuth}/>
+    <Pressable onPress={()=>setFeedbackOpen(true)} accessibilityRole="button" style={styles.panelHead}>
+      <View style={{flex:1}}><Text style={styles.panelTitle}>{t('feedback')}</Text></View>
+      <Icon name="arrow" size={18} color={colors.inkMuted}/>
+    </Pressable>
+    <FeedbackScreen visible={feedbackOpen} onClose={()=>setFeedbackOpen(false)}/>
     <LanguageRow locale={locale} setLocale={setLocale} label={t('language')}/>
   </ScrollView>;
 
@@ -106,6 +113,11 @@ export function ProfileScreen({signedIn,onAuth,onDeleted,onStore}:{
         </Pressable>)}
     </View>)}
 
+    <Pressable onPress={()=>setFeedbackOpen(true)} accessibilityRole="button" style={styles.panelHead}>
+      <View style={{flex:1}}><Text style={styles.panelTitle}>{t('feedback')}</Text></View>
+      <Icon name="arrow" size={18} color={colors.inkMuted}/>
+    </Pressable>
+    <FeedbackScreen visible={feedbackOpen} onClose={()=>setFeedbackOpen(false)}/>
     <LanguageRow locale={locale} setLocale={setLocale} label={t('language')}/>
 
     <View style={styles.account}>
