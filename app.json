@@ -51,13 +51,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/brand/splash-light.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#FAF8F4",
-          "dark": {
-            "image": "./assets/brand/splash-dark.png",
-            "backgroundColor": "#16140F"
-          }
+          "image": "./assets/brand/brand-logo-transparent.png",
+          "imageWidth": 240,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAF8F4"
         }
       ],
       "expo-secure-store",
@@ -80,7 +77,6 @@
       "eas": {
         "projectId": "5acbf619-ac9e-413c-bf54-a7baa224fe66"
       }
-    },
-    "backgroundColor": "#FAF8F4"
+    }
   }
 }
