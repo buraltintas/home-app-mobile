@@ -79,6 +79,13 @@ export const mobileApi = {
   // A private message to us about the product. No account required, for the same reason
   // browsing does not need one: somebody who cannot use the app is exactly who needs to be
   // able to say so.
+  // Photographs go straight to object storage through a signed URL; the API never carries
+  // the bytes. Three steps: ask for a slot, PUT the file to the URL it names, then tell the
+  // API the object is there. A review references the id, not the URL.
+  createUpload: (mimeType:string, sizeBytes:number, locale:Locale) =>
+    apiFetch<{id:string;upload:{upload_url:string;headers:Record<string,string>}}>(
+      '/v1/media/uploads',{method:'POST',body:JSON.stringify({mime_type:mimeType,size_bytes:sizeBytes})},locale),
+  completeUpload: (id:string, locale:Locale) => apiFetch<void>(`/v1/media/${id}/complete`,{method:'POST'},locale),
   sendFeedback: (input:{kind:string;message:string;contact_email?:string}, locale:Locale) =>
     apiFetch<void>('/v1/feedback',{method:'POST',body:JSON.stringify(input)},locale),
   me: (locale:Locale) => apiFetch<PrivateProfile>('/v1/me',{},locale),

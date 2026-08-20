@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { mobileApi } from '../api/client';
 import type { Store } from '../api/types';
 import { PrimaryButton, SearchField } from '../components/Primitives';
 import { StoreRow } from '../components/StoreRow';
 import { useI18n } from '../i18n';
+import { uploadPhoto } from '../lib/uploadPhoto';
 import { colors, fonts, radius, spacing } from '../theme/tokens';
 
 // Writing a review has one hard requirement the product will not bend on: the visit is
@@ -26,6 +28,7 @@ export function CreateScreen({onAuth}:{onAuth:()=>void}) {
   const [proofId,setProofId]=useState<string>();
   const [rating,setRating]=useState(0);
   const [text,setText]=useState('');
+  const [photos,setPhotos]=useState<string[]>([]);
   const [busy,setBusy]=useState(false);
 
   const nearby=async()=>{
@@ -67,14 +70,27 @@ export function CreateScreen({onAuth}:{onAuth:()=>void}) {
     }finally{setBusy(false);}
   };
 
+
+  const addPhoto=async()=>{
+    const permission=await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if(!permission.granted){Alert.alert(t('createTitle'),t('photoPermission'));return;}
+    const result=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],quality:.8,selectionLimit:1});
+    if(result.canceled||result.assets.length===0)return;
+    setPhotos(current=>[...current,result.assets[0].uri].slice(0,10));
+  };
+
   const publish=async()=>{
     if(!store||!proofId||rating<1||text.trim().length<3)return;
     setBusy(true);
     try{
-      await mobileApi.createReview({store_id:store.id,text:text.trim(),rating,visit_verification_id:proofId,content_language:locale},locale);
+      // Photographs are uploaded before the review so a failure here means no review with
+      // missing pictures -- it means no review yet, and the author still has their text.
+      const mediaIds:string[]=[];
+      for(const uri of photos)mediaIds.push(await uploadPhoto(uri,locale));
+      await mobileApi.createReview({store_id:store.id,text:text.trim(),rating,media_ids:mediaIds,visit_verification_id:proofId,content_language:locale},locale);
       await mobileApi.clearVisitProof(store.id);
       Alert.alert(t('createTitle'),t('published'));
-      setStep('store');setStore(null);setProofId(undefined);setRating(0);setText('');setCandidates(null);setQuery('');
+      setStep('store');setStore(null);setProofId(undefined);setRating(0);setText('');setPhotos([]);setCandidates(null);setQuery('');
     }catch(reason){
       const code=(reason as {error?:{code?:string}})?.error?.code;
       if(code==='AUTH_REQUIRED'||code==='INVALID_TOKEN'||code==='INVALID_REFRESH_TOKEN'){onAuth();return;}
@@ -136,6 +152,19 @@ export function CreateScreen({onAuth}:{onAuth:()=>void}) {
         placeholderTextColor={colors.inkMuted}
         style={styles.input}
         accessibilityLabel={t('experienceStep')}/>
+      <View style={styles.photos}>
+        {photos.map(uri=><View key={uri} style={styles.photo}>
+          <Image source={{uri}} style={styles.photoImage}/>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('removePhoto')} hitSlop={8}
+            onPress={()=>setPhotos(current=>current.filter(item=>item!==uri))} style={styles.photoRemove}>
+            <Text style={styles.photoRemoveText}>×</Text>
+          </Pressable>
+        </View>)}
+        {photos.length<10&&<Pressable accessibilityRole="button" onPress={()=>void addPhoto()} style={styles.photoAdd}>
+          <Text style={styles.photoAddText}>+</Text>
+        </Pressable>}
+      </View>
+      <Text style={styles.explainer}>{t('photoNote')}</Text>
       <PrimaryButton label={busy?'…':t('publish')} disabled={busy||rating<1||text.trim().length<3} onPress={()=>void publish()}/>
     </View>}
   </ScrollView>;
@@ -154,6 +183,6 @@ const styles=StyleSheet.create({
   block:{marginTop:spacing.xl,gap:spacing.md},
   verified:{fontFamily:fonts.semibold,fontSize:15,color:colors.success},
   ratingRow:{flexDirection:'row',gap:spacing.sm},
-  star:{fontSize:38,color:colors.line,paddingHorizontal:2},
+  photos:{flexDirection:'row',flexWrap:'wrap',gap:spacing.sm},photo:{width:88,height:88,borderRadius:radius.small+4,overflow:'hidden',backgroundColor:colors.muted},photoImage:{width:'100%',height:'100%'},photoRemove:{position:'absolute',top:0,right:0,width:30,height:30,alignItems:'center',justifyContent:'center',backgroundColor:colors.ink},photoRemoveText:{color:colors.surface,fontSize:18,lineHeight:20,fontFamily:fonts.semibold},photoAdd:{width:88,height:88,borderRadius:radius.small+4,borderWidth:1,borderColor:colors.lineStrong,alignItems:'center',justifyContent:'center'},photoAddText:{fontSize:30,color:colors.inkMuted,fontFamily:fonts.body},star:{fontSize:38,color:colors.line,paddingHorizontal:2},
   input:{minHeight:150,textAlignVertical:'top',padding:spacing.md,borderWidth:1,borderColor:colors.lineStrong,borderRadius:radius.control,backgroundColor:colors.surface,fontFamily:fonts.body,fontSize:16,lineHeight:24,color:colors.ink},
 });
