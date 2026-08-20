@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import type { Locale, Store, LocationResult, Post, PrivateProfile, SearchResponse, StoreDetail, TokenPair, VisitVerification } from './types';
+import type { Locale, SearchHistoryEntry, Store, LocationResult, Post, PrivateProfile, SearchResponse, StoreDetail, TokenPair, VisitVerification } from './types';
 
 const API_ORIGIN = process.env.EXPO_PUBLIC_API_ORIGIN ?? 'http://localhost:8080';
 // Temporary backend contract: this static mobile client credential is extractable.
@@ -76,6 +76,14 @@ export const mobileApi = {
     const query=params.toString();
     return apiFetch<StoreDetail>(`/v1/stores/${id}${query?`?${query}`:''}`,{},locale);
   },
+  me: (locale:Locale) => apiFetch<PrivateProfile>('/v1/me',{},locale),
+  updateMe: (patch:Record<string,unknown>, locale:Locale) => apiFetch<PrivateProfile>('/v1/me',{method:'PATCH',body:JSON.stringify(patch)},locale),
+  searches: (locale:Locale) => apiFetch<{items:SearchHistoryEntry[]}>('/v1/me/searches?limit=20',{},locale),
+  deleteSearch: (id:string, locale:Locale) => apiFetch<void>(`/v1/me/searches/${id}`,{method:'DELETE'},locale),
+  clearSearches: (locale:Locale) => apiFetch<void>('/v1/me/searches',{method:'DELETE'},locale),
+  // Signing out revokes the token family on the server as well as clearing this device.
+  // Dropping the tokens locally would leave a refresh token valid for its whole lifetime.
+  logout: async (locale:Locale) => { try{ await apiFetch<void>('/v1/auth/logout',{method:'POST'},locale); } finally { await clearSession(); } },
   favorites: (locale:Locale) => apiFetch<{items:Store[]}>('/v1/me/favorites?limit=50',{},locale),
   // Finding the store you are standing in. Name search answers "the place I can see the
   // sign of"; nearby answers "the place I am inside", which is the common case when

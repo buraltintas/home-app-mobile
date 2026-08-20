@@ -33,7 +33,18 @@ export type SearchResponse = { search_id: string; visitor_session_id?: string; i
 export type LocationResult = { provider: 'google'; place_id: string; name: string; address: string; latitude: number; longitude: number; types: string[]; attributions: string[] };
 export type DiscoveryLocation = { source: 'device' | 'manual'; label: string; address: string; place_id?: string; latitude: number; longitude: number; accuracy_meters?: number; updated_at: string };
 export type VisitVerification = { id: string; store_id: string; distance_meters: number; verified_at: string; expires_at: string };
-export type PrivateProfile = { id: string; email: string; preferred_locale: Locale; discovery_location: DiscoveryLocation | null; [key: string]: unknown };
+export type PrivateProfile = {
+  id: string; email: string; username: string; display_name: string; bio: string; city: string;
+  follower_count: number; following_count: number; post_count: number; favorite_count: number;
+  // Standing is derived from published reviews rather than stored, so it cannot drift from
+  // the content it describes.
+  level: number;
+  preferred_locale: Locale; discovery_location: DiscoveryLocation | null; [key: string]: unknown;
+};
+export type SearchHistoryEntry = {
+  id: string; raw_query: string; result_count: number; created_at: string;
+  results: { store_id: string; name: string; city?: string; district?: string }[];
+};
 export type Store = {
   id: string; name: string; slug: string; brand_name?: string; address: string; city: string; district: string;
   latitude: number; longitude: number; distance_meters?: number; categories: string[]; category_labels: string[];

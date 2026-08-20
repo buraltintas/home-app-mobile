@@ -4,12 +4,16 @@ import { colors, fonts, radius, spacing } from '../theme/tokens';
 import { Icon } from './Icon';
 import { useI18n } from '../i18n';
 
+// Native Google sign-in needs an iOS and an Android OAuth client of its own; the web one
+// cannot be reused. Until those exist the product offers passwordless email only.
+const GOOGLE_READY=Boolean(process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID??process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID);
+
 export function VerifiedBadge() { const {t}=useI18n(); return <View style={styles.verified}><Icon name="check" size={13} color={colors.success}/><Text style={styles.verifiedText}>{t('verified')}</Text></View>; }
 export function Rating({value,size='normal'}:{value:number;size?:'normal'|'large'}) { return <View style={styles.rating}><Icon name="star" size={size==='large'?20:15} color={colors.clay}/><Text style={[styles.ratingText,size==='large'&&styles.ratingLarge]}>{value.toFixed(1)}</Text></View>; }
 export function PrimaryButton({label,onPress,disabled=false,kind='primary'}:{label:string;onPress?:()=>void;disabled?:boolean;kind?:'primary'|'secondary'|'quiet'}) { return <Pressable accessibilityRole="button" accessibilityState={{disabled}} onPress={onPress} disabled={disabled} style={({pressed})=>[styles.button,kind==='secondary'&&styles.buttonSecondary,kind==='quiet'&&styles.buttonQuiet,disabled&&styles.disabled,pressed&&styles.pressed]}><Text style={[styles.buttonText,kind!=='primary'&&styles.buttonTextDark]}>{label}</Text></Pressable>; }
 export function SearchField({value,onChange,onSubmit,placeholder}:{value:string;onChange:(v:string)=>void;onSubmit:()=>void;placeholder:string}) { return <View style={styles.search}><Icon name="search" size={22}/><TextInput value={value} onChangeText={onChange} onSubmitEditing={onSubmit} placeholder={placeholder} placeholderTextColor={colors.inkMuted} returnKeyType="search" accessibilityLabel={placeholder} style={styles.searchInput}/></View>; }
 
-export function AuthSheet({visible,onClose,onEmail}:{visible:boolean;onClose:()=>void;onEmail:()=>void}) { const {t}=useI18n(); return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}><Pressable style={styles.scrim} onPress={onClose}/><View style={styles.sheet} accessibilityViewIsModal><View style={styles.sheetHandle}/><Text style={styles.sheetTitle}>{t('signInTitle')}</Text><Text style={styles.sheetBody}>{t('signInBody')}</Text><PrimaryButton label={t('google')} onPress={()=>{}}/><PrimaryButton label={t('email')} kind="secondary" onPress={onEmail}/><PrimaryButton label={t('later')} kind="quiet" onPress={onClose}/></View></Modal>; }
+export function AuthSheet({visible,onClose,onEmail,onGoogle}:{visible:boolean;onClose:()=>void;onEmail:()=>void;onGoogle?:()=>void}) { const {t}=useI18n(); return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}><Pressable style={styles.scrim} onPress={onClose}/><View style={styles.sheet} accessibilityViewIsModal><View style={styles.sheetHandle}/><Text style={styles.sheetTitle}>{t('signInTitle')}</Text><Text style={styles.sheetBody}>{t('signInBody')}</Text>{GOOGLE_READY&&<PrimaryButton label={t('google')} onPress={onGoogle}/>}<PrimaryButton label={t('email')} kind="secondary" onPress={onEmail}/><PrimaryButton label={t('later')} kind="quiet" onPress={onClose}/></View></Modal>; }
 
 const styles=StyleSheet.create({
   verified:{flexDirection:'row',alignItems:'center',gap:5},verifiedText:{fontSize:12,lineHeight:16,color:colors.success,fontFamily:fonts.bold},
