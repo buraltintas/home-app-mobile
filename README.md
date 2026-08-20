@@ -8,7 +8,7 @@ This repository currently contains the working mobile frontend prototype, typed 
 
 ## Current experience
 
-- A photography- and real-visit-first home feed
+- A live photography- and real-visit-first home feed with loading, empty, and retryable error states
 - Natural-language queries, recent searches, categories, and nearby discovery
 - Backend-authored guidance for unrelated or unclear searches and store-name intent
 - Explicit current/manual location choice with debounced geographic suggestions
@@ -36,6 +36,10 @@ The bottom navigation is not a stock tab bar. It is purpose-built for Boşa Gezm
 - Scene and navigation animation disabled when Reduce Motion is enabled
 
 Glass material is restricted to navigation. The design avoids decorative gloss stripes and content-wide glassmorphism.
+
+## Brand assets
+
+Native branding lives under `assets/brand/`. `app-icon-mascot.png` is the iOS, Android, and Expo web icon. The Expo splash plugin uses the supplied light and dark splash artwork, while `brand-logo-transparent.png` is reserved for in-app product branding.
 
 ## Technology
 
@@ -67,6 +71,16 @@ Platform shortcuts:
 npm run ios
 npm run android
 ```
+
+### EAS project and signing
+
+The repository is linked to the EAS project `@xewor/bosagezme` with project ID `5acbf619-ac9e-413c-bf54-a7baa224fe66`. Build profiles are defined in `eas.json`:
+
+- `development`: development client with internal distribution
+- `preview`: internal distribution
+- `production`: store-ready build with remote version auto-increment
+
+The current Android development credential signs package `com.bosagezme.app`. Its public SHA-1 certificate fingerprint is `FC:74:F4:FB:D1:F8:98:94:46:DA:30:C1:3B:C8:7F:99:AA:E4:01:6B`. Google Play App Signing will use a separate production fingerprint that must be registered when distribution is configured. Keystore files, passwords, aliases, Apple credentials, and service-account keys must never be committed.
 
 On a physical device, `localhost` refers to the device itself. Set `EXPO_PUBLIC_API_ORIGIN` to an address reachable from the local network.
 
@@ -101,9 +115,9 @@ The App Store review identity uses the same email request and verification scree
 
 ## Fixtures and prototype behavior
 
-Canonical fixture shapes come from `home-app-api/docs/frontend-fixtures`. Bundled development imagery stays in a presentation adapter and does not change production DTOs.
+Canonical fixture shapes support store and presentation prototypes. The home feed and discovery search use the live API through the isolated native transport. An empty feed is represented by `{"items":[],"next_cursor":""}` and renders an intentional empty state. Bundled development imagery stays in a presentation adapter and does not change production DTOs.
 
-Some screens still use prototype behavior. A local like or favorite state does not represent successful backend persistence. Production integration must wait for mutation success or roll back failed optimistic updates.
+Feed likes and store favorites update only after the native transport confirms the backend mutation; authentication failures open contextual sign-in without changing counts. Other unfinished prototype surfaces must follow the same rule as they are integrated: wait for success or roll back failed optimistic updates.
 
 ## Permission behavior
 
@@ -112,11 +126,13 @@ Some screens still use prototype behavior. A local like or favorite state does n
 - Nearby discovery always offers current location, a single-field manual place search, and a non-blocking “Not now” path.
 - Manual discovery candidates are never accepted as visit evidence; review verification always uses a fresh foreground OS fix and horizontal accuracy.
 - Photo permission is requested only when the user adds media to a review.
+- The image-picker integration does not request microphone access.
 
 ## Project structure
 
 ```text
 App.tsx            Navigation, authentication sheets, and scene transitions
+assets/brand/      Role-specific logo, app icon, splash, and sharing artwork
 src/
   api/             Typed transport, tokens, and locale handling
   components/      Glass tab bar, icons, feed, and primitives

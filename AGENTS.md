@@ -1,6 +1,6 @@
 # Boşa Gezme! mobile contribution rules
 
-Read the exact Expo SDK documentation for the version in `package.json` before using or changing Expo APIs. Before changing screens, tokens, navigation, content, localization, or accessibility, read the shared `$home-app-design` authority from the Boşa Gezme! API repository.
+Read the exact Expo SDK documentation for the version in `package.json` before using or changing Expo APIs. Before changing screens, tokens, navigation, content, localization, or accessibility, use the shared `$impeccable` foundation and then the `$home-app-design` authority from `../home-app-api/.agents/skills/`. The Boşa Gezme!-specific skill wins if they conflict.
 
 ## Product invariants
 

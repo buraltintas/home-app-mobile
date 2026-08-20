@@ -10,6 +10,8 @@ const REFRESH_KEY = 'bosagezme.refresh';
 const VISITOR_KEY = 'bosagezme.visitor';
 const VISIT_PROOF_PREFIX = 'bosagezme.visit-proof.';
 let refreshPromise: Promise<string | null> | null = null;
+let onSessionExpired: (() => void) | null = null;
+export function setSessionExpiredHandler(handler: (() => void) | null) { onSessionExpired = handler; }
 
 async function headers(locale: Locale, authenticated = false) {
   const result: Record<string, string> = {'Content-Type':'application/json','X-BFF-Secret':MOBILE_CLIENT_KEY,'X-Locale':locale,'X-Client-Type':'mobile','X-Client-Version':'1.0.0'};
@@ -23,7 +25,7 @@ async function rotate(locale: Locale) {
   if (!refreshPromise) refreshPromise = (async () => {
     const refresh = await SecureStore.getItemAsync(REFRESH_KEY); if (!refresh) return null;
     const response = await fetch(`${API_ORIGIN}/v1/auth/refresh`, {method:'POST',headers:await headers(locale),body:JSON.stringify({refresh_token:refresh})});
-    if (!response.ok) { await clearSession(); return null; }
+    if (!response.ok) { await clearSession(); onSessionExpired?.(); return null; }
     const pair = await response.json() as TokenPair; await saveSession(pair); return pair.access_token;
   })().finally(() => { refreshPromise = null; });
   return refreshPromise;
@@ -44,6 +46,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}, locale: 
 export async function saveSession(pair: TokenPair) { await Promise.all([SecureStore.setItemAsync(ACCESS_KEY,pair.access_token),SecureStore.setItemAsync(REFRESH_KEY,pair.refresh_token)]); }
 export async function clearSession() { await Promise.all([SecureStore.deleteItemAsync(ACCESS_KEY),SecureStore.deleteItemAsync(REFRESH_KEY)]); }
 export async function hasSession() { return Boolean(await SecureStore.getItemAsync(ACCESS_KEY)); }
+export function mobileMediaSource(path:string) { return {uri:new URL(path,API_ORIGIN).toString(),headers:{'X-BFF-Secret':MOBILE_CLIENT_KEY}}; }
 export const mobileApi = {
   feed: (locale: Locale, location?:{latitude:number;longitude:number}, cursor?:string) => {
     const params=new URLSearchParams({limit:'20'}); if(location){params.set('latitude',String(location.latitude));params.set('longitude',String(location.longitude));}if(cursor)params.set('cursor',cursor);
@@ -65,5 +68,6 @@ export const mobileApi = {
   requestCode: (email:string, locale:Locale) => apiFetch<{status:string}>('/v1/auth/email/request-code',{method:'POST',body:JSON.stringify({email})},locale),
   verifyCode: (email:string,code:string,locale:Locale) => apiFetch<TokenPair>('/v1/auth/email/verify-code',{method:'POST',body:JSON.stringify({email,code})},locale),
   favorite: (id:string,locale:Locale,saved:boolean) => apiFetch<void>(`/v1/stores/${id}/favorite`,{method:saved?'DELETE':'POST'},locale,true),
+  like: (id:string,locale:Locale,liked:boolean) => apiFetch<void>(`/v1/posts/${id}/like`,{method:liked?'DELETE':'POST'},locale,true),
   deleteAccount: async (locale:Locale) => {await apiFetch<void>('/v1/me',{method:'DELETE'},locale,true);await clearSession();},
 };

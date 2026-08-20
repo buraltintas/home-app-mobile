@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo-google-fonts/onest": "^0.4.1",
+    "@expo-google-fonts/unbounded": "^0.4.1",
     "@react-navigation/bottom-tabs": "^7.18.16",
     "@react-navigation/native": "^7.3.16",
     "expo": "~57.0.14",
     "expo-blur": "~57.0.2",
+    "expo-font": "~57.0.1",
     "expo-image-picker": "~57.0.11",
     "expo-location": "~57.0.11",
     "expo-secure-store": "~57.0.1",
