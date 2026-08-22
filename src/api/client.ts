@@ -107,8 +107,17 @@ export const mobileApi = {
   },
   // Which result was opened, so the search that produced it can be measured. Without this
   // the conversion funnel counts every mobile search as one that led nowhere.
-  recordInteraction: (searchId:string, impressionId:string, kind:string, locale:Locale) =>
-    apiFetch<void>(`/v1/searches/${searchId}/interactions`,{method:'POST',body:JSON.stringify({search_result_impression_id:impressionId,interaction_type:kind})},locale),
+  // The field names have to be the API's own. They were not, and neither was the event
+  // name, so every interaction the app reported was rejected and the conversion funnel
+  // counted every mobile search as one that led nowhere -- which is exactly what the
+  // comment above claimed this prevented.
+  recordInteraction: (searchId:string, resultId:string, kind:string, locale:Locale) =>
+    apiFetch<void>(`/v1/searches/${searchId}/interactions`,{method:'POST',body:JSON.stringify({search_result_id:resultId,event_type:kind,idempotency_key:`${kind}:${resultId}`})},locale),
+  // What people around here have actually searched for. Empty in a quiet neighbourhood,
+  // and the caller falls back to the seasonal list rather than showing nothing.
+  searchSuggestions: (location:{latitude:number;longitude:number}, locale:Locale) =>
+    apiFetch<{items:{query:string;search_count:number}[]}>(`/v1/search/suggestions?latitude=${location.latitude}&longitude=${location.longitude}`,{},locale),
+  categories: (locale:Locale) => apiFetch<{items:{slug:string;name:string;search_count:number}[]}>('/v1/categories',{},locale),
   requestCode: (email:string, locale:Locale) => apiFetch<{status:string}>('/v1/auth/email/request-code',{method:'POST',body:JSON.stringify({email})},locale),
   verifyCode: (email:string,code:string,locale:Locale) => apiFetch<TokenPair>('/v1/auth/email/verify-code',{method:'POST',body:JSON.stringify({email,code})},locale),
   favorite: (id:string,locale:Locale,saved:boolean) => apiFetch<void>(`/v1/stores/${id}/favorite`,{method:saved?'DELETE':'POST'},locale,true),

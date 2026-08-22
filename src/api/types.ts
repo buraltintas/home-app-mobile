@@ -24,6 +24,9 @@ export type SearchResult = {
   // organic result is what consumer rules prohibit, and /about and /terms already promise
   // it is marked wherever it appears.
   premium?: boolean;
+  // The store's public telephone number, when we hold one. Absent for a result we have
+  // never had a number for; the row hides the action rather than offering a dead one.
+  phone?: string;
   // The photograph already held for this store, used when the live provider response has
   // none -- which is every store that reaches the list from our own catalogue.
   photo?: { name: string; attributions?: string[] };
@@ -46,7 +49,7 @@ export type SearchHistoryEntry = {
   results: { store_id: string; name: string; city?: string; district?: string }[];
 };
 export type Store = {
-  id: string; name: string; slug: string; brand_name?: string; address: string; city: string; district: string;
+  id: string; name: string; slug: string; brand_name?: string; address: string; city: string; district: string; phone?: string;
   latitude: number; longitude: number; distance_meters?: number; categories: string[]; category_labels: string[];
   localized_description?: string; platform: PlatformStats; viewer_has_favorited: boolean; viewer_has_reviewed: boolean;
   is_premium?: boolean;

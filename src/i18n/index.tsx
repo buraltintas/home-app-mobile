@@ -9,10 +9,10 @@ const accountCopy={
 } as const;
 
 const feedStateCopy={
-  tr:{feedLoading:'Deneyimler yükleniyor…',feedErrorTitle:'Akış yüklenemedi',feedErrorBody:'Bağlantını kontrol edip tekrar deneyebilirsin.',feedEmptyTitle:'Henüz paylaşım yok',feedEmptyBody:'İlk doğrulanmış mağaza deneyimleri burada görünecek.'},
-  en:{feedLoading:'Loading experiences…',feedErrorTitle:'The feed could not load',feedErrorBody:'Check your connection and try again.',feedEmptyTitle:'No posts yet',feedEmptyBody:'The first verified store experiences will appear here.'},
-  de:{feedLoading:'Erfahrungen werden geladen…',feedErrorTitle:'Der Feed konnte nicht geladen werden',feedErrorBody:'Prüfe deine Verbindung und versuche es erneut.',feedEmptyTitle:'Noch keine Beiträge',feedEmptyBody:'Die ersten verifizierten Geschäftserfahrungen erscheinen hier.'},
-  ru:{feedLoading:'Загружаем впечатления…',feedErrorTitle:'Не удалось загрузить ленту',feedErrorBody:'Проверьте подключение и повторите попытку.',feedEmptyTitle:'Публикаций пока нет',feedEmptyBody:'Здесь появятся первые подтверждённые впечатления о магазинах.'},
+  tr:{callStore:'Ara',nearbySearches:'Yakınında şunlar aranmış',seasonalSuggestions:'Bu mevsim akla gelenler',feedEnd:'Şimdilik hepsi bu. Sıradaki deneyim seninkisi olabilir.',feedLoading:'Deneyimler yükleniyor…',feedErrorTitle:'Akış yüklenemedi',feedErrorBody:'Bağlantını kontrol edip tekrar deneyebilirsin.',feedEmptyTitle:'Henüz paylaşım yok',feedEmptyBody:'İlk doğrulanmış mağaza deneyimleri burada görünecek.'},
+  en:{callStore:'Call',nearbySearches:'Searched near you',seasonalSuggestions:'What the season brings to mind',feedEnd:'That is everything for now. The next one could be yours.',feedLoading:'Loading experiences…',feedErrorTitle:'The feed could not load',feedErrorBody:'Check your connection and try again.',feedEmptyTitle:'No posts yet',feedEmptyBody:'The first verified store experiences will appear here.'},
+  de:{callStore:'Anrufen',nearbySearches:'In deiner Nähe gesucht',seasonalSuggestions:'Was zur Jahreszeit passt',feedEnd:'Das ist vorerst alles. Die nächste könnte deine sein.',feedLoading:'Erfahrungen werden geladen…',feedErrorTitle:'Der Feed konnte nicht geladen werden',feedErrorBody:'Prüfe deine Verbindung und versuche es erneut.',feedEmptyTitle:'Noch keine Beiträge',feedEmptyBody:'Die ersten verifizierten Geschäftserfahrungen erscheinen hier.'},
+  ru:{callStore:'Позвонить',nearbySearches:'Ищут рядом с вами',seasonalSuggestions:'Что приходит на ум в этом сезоне',feedEnd:'Пока это всё. Следующее впечатление может быть вашим.',feedLoading:'Загружаем впечатления…',feedErrorTitle:'Не удалось загрузить ленту',feedErrorBody:'Проверьте подключение и повторите попытку.',feedEmptyTitle:'Публикаций пока нет',feedEmptyBody:'Здесь появятся первые подтверждённые впечатления о магазинах.'},
 } as const;
 
 const dictionaries = {
@@ -48,10 +48,10 @@ const dictionaries = {
 } as const;
 
 const hardeningCopy={
-  tr:{recentSearchExample:'Kadıköy’de modern avize mağazaları',back:'Geri',externalSeparation:'Topluluk ve dış kaynak puanları ayrı gösterilir.'},
-  en:{recentSearchExample:'Modern lighting stores in Hackney',back:'Back',externalSeparation:'Community and external ratings are shown separately.'},
-  de:{recentSearchExample:'Moderne Leuchtengeschäfte in Kreuzberg',back:'Zurück',externalSeparation:'Community- und externe Bewertungen werden getrennt angezeigt.'},
-  ru:{recentSearchExample:'Магазины современного освещения в центре',back:'Назад',externalSeparation:'Оценки сообщества и внешних источников показываются отдельно.'},
+  tr:{back:'Geri',externalSeparation:'Topluluk ve dış kaynak puanları ayrı gösterilir.'},
+  en:{back:'Back',externalSeparation:'Community and external ratings are shown separately.'},
+  de:{back:'Zurück',externalSeparation:'Community- und externe Bewertungen werden getrennt angezeigt.'},
+  ru:{back:'Назад',externalSeparation:'Оценки сообщества и внешних источников показываются отдельно.'},
 } as const;
 
 export type TranslationKey = keyof typeof dictionaries.en|keyof typeof hardeningCopy.en;

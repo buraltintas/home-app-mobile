@@ -88,6 +88,7 @@ export function StoreScreen({storeId,onBack,onAuth}:{storeId:string;onBack:()=>v
       <View style={styles.actions}>
         {action('bookmark',saved?t('saved'):t('save'),()=>void toggleSave(),saved)}
         {action('directions',t('directions'),directions)}
+        {!!store.phone&&action('phone',t('callStore'),()=>void Linking.openURL(`tel:${store.phone!.replace(/[^\d+]/g,'')}`).catch(()=>undefined))}
         {action('comment',t('review'),onAuth)}
         {action('share',t('share'),share)}
       </View>
