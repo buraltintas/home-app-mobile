@@ -60,6 +60,9 @@ export const mobileApi = {
   },
   search: (query:string, locale:Locale, location?:{latitude:number;longitude:number}) => apiFetch<SearchResponse>('/v1/search',{method:'POST',body:JSON.stringify({query,...location})},locale),
   searchLocations: (query:string,locale:Locale) => apiFetch<{items:LocationResult[]}>(`/v1/locations/search?q=${encodeURIComponent(query)}&limit=5`,{},locale),
+  // A prediction carries no coordinates, and a point we search around should be fetched
+  // from the provider rather than taken from the device. So the chosen place is resolved.
+  resolveLocation: (placeId:string,locale:Locale) => apiFetch<LocationResult>(`/v1/locations/resolve?place_id=${encodeURIComponent(placeId)}`,{},locale),
   saveManualLocation: (placeId:string,locale:Locale) => apiFetch<PrivateProfile>('/v1/me/discovery-location',{method:'PUT',body:JSON.stringify({source:'manual',place_id:placeId})},locale,true),
   saveDeviceLocation: (location:{latitude:number;longitude:number;accuracy_meters:number},locale:Locale) => apiFetch<PrivateProfile>('/v1/me/discovery-location',{method:'PUT',body:JSON.stringify({source:'device',...location})},locale,true),
   clearDiscoveryLocation: (locale:Locale) => apiFetch<void>('/v1/me/discovery-location',{method:'DELETE'},locale,true),
