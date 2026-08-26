@@ -71,13 +71,12 @@ export function ProfileScreen({signedIn,onAuth,onDeleted,onStore}:{
 
     <View style={styles.card}>
       <View style={styles.identity}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>{(me.display_name||me.username||me.email).slice(0,1).toLocaleUpperCase(locale)}</Text></View>
+        <View style={styles.avatar}><Text style={styles.avatarText}>{(me.display_name||me.email).slice(0,1).toLocaleUpperCase(locale)}</Text></View>
         <View style={{flex:1,minWidth:0}}>
           <View style={styles.nameRow}>
-            <Text numberOfLines={1} style={styles.name}>{me.display_name||me.username}</Text>
+            <Text numberOfLines={1} style={styles.name}>{me.display_name||me.email}</Text>
             {me.post_count>0&&<Text style={styles.level}>{t(LEVEL_KEYS[level])}</Text>}
           </View>
-          <Text numberOfLines={1} style={styles.handle}>@{me.username}</Text>
           <Text numberOfLines={1} style={styles.handle}>{me.email}</Text>
         </View>
       </View>

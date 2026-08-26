@@ -6,7 +6,7 @@ export type PlatformStats = { average_rating: number; rating_count?: number; rev
 export type GoogleStats = { provider: 'google'; place_id: string; rating: number; rating_count: number; photo_name?: string; photo_attributions?: string[];};
 export type Post = {
   id: string; user_id: string; store_id: string; text: string; content_language?: Locale; rating: number;
-  visit_verified: true; distance_meters: number; created_at: string; username: string; display_name: string;
+  visit_verified: true; distance_meters: number; created_at: string; display_name: string;
   avatar_url: string; store_name: string; store_city: string; store_district: string; media: MediaAsset[]; store_distance_meters?: number;
   like_count: number; comment_count: number; viewer_has_liked: boolean; viewer_follows_author: boolean;
   viewer_has_favorited_store: boolean;
@@ -37,7 +37,7 @@ export type LocationResult = { provider: 'google'; place_id: string; name: strin
 export type DiscoveryLocation = { source: 'device' | 'manual'; label: string; address: string; place_id?: string; latitude: number; longitude: number; accuracy_meters?: number; updated_at: string };
 export type VisitVerification = { id: string; store_id: string; distance_meters: number; verified_at: string; expires_at: string };
 export type PrivateProfile = {
-  id: string; email: string; username: string; display_name: string; bio: string; city: string;
+  id: string; email: string; display_name: string; bio: string; city: string;
   follower_count: number; following_count: number; post_count: number; favorite_count: number;
   // Standing is derived from published reviews rather than stored, so it cannot drift from
   // the content it describes.
