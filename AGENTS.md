@@ -40,3 +40,17 @@ npm run lint
 npm test
 npx expo-doctor
 ```
+
+## Keep the log
+
+Every change that a person would want explained later goes in `docs/CHANGELOG.md`, newest
+first, in the same commit as the change itself. Not a list of files touched — what changed,
+and why it was worth changing. A defect entry says what was actually broken: "fixed the
+feed" tells the next person nothing, "the feed stopped at twenty reviews because the client
+never asked for the cursor the API was already returning" tells them everything.
+
+`PRODUCT.md` and this file matter the same way — a rule that had to be learned the hard way
+belongs here, so it is learned once. Anything that must also hold on web belongs in that
+repository's documents rather than only here.
+
+**No secrets in any of them,** and never the client key. These repositories are public.
